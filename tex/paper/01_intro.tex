@@ -1,0 +1,40 @@
+Many applications today contain cryptographic operations. Without them, basic security mechanisms such as secure communication and authentication can hardly be achieved. In modern cryptography (crypto for short), there is no need to hide the crypto algorithms, i.e., their constructions are open.
+% For instance, the construction of blockciphers and hash functions have been standardized for quite a long time, and they have been proven to be secure. 
+The only secret in modern crypto are the crypto keys. The security of a crypto key depends on the size of the key, the process that generates the key, and how the key is used. Unfortunately, developers often make mistakes in key generation, derivation, and sanitization that may result in keys being  guessed or leaked.
+
+Over the past few years, we have witnessed numerous cases of insecure crypto keys in software implementations. For instance, some keys are generated without sufficient randomness (e.g., the not-so-randomly-generated numbers in virtualized environments~\cite{everspaugh2014not}), some keys can be easily leaked (e.g., due to software vulnerabilities such as Heartbleed~\cite{durumeric2014matter}), some keys can be forged (e.g., using unauthenticated encryption~\cite{duong2011cryptography}), and some developers may just simply misuse the keys (e.g., using a constant symmetric key that is never changed~\cite{egele2013empirical} or the same initialization vector  to encrypt different versions of a document~\cite{wu2005misuse}). As such, there is a strong need to systematically inspect crypto implementations to identify insecure keys.
+
+Unfortunately, crypto software is difficult to analyze for a number of reasons. First, there is a large body of crypto algorithms (e.g., symmetric ciphers, asymmetric ciphers, stream ciphers, digital signatures) that developers can use. Second, crypto software is complex, e.g., it may contain multiple crypto algorithms such as using an asymmetric cipher to exchange a symmetric key as in TLS. Third, crypto software is often proprietary, and thus only  executables are available. 
+
+There exist prior works that use binary code analysis to analyze crypto software. 
+For example, \textsf{\small ReFormat}~\cite{wang2009reformat} and \textsf{\small Dispatcher}~\cite{caballero2009dispatcher} detect crypto operations based on the execution statistics of bitwise and arithmetic instructions. % and then analyze the protocol format after the execution of crypto operations.
+Gr{\"o}bert \emph{et al}.~\cite{grobert2011automated} propose to identify specific crypto primitives (e.g., \textsf{\small RC4, AES}) and their parameters (e.g., plaintext or crypto keys)  using crypto function signatures and heuristics. % for malware analysis. 
+Most recently, \textsf{\small CryptoHunt}~\cite{xu2017cryptographic} proposes a technique called bit-precise symbolic loop mapping to identify commonly used crypto functions (e.g., \textsf{\small AES, RSA}).
+% in obfuscated binaries. 
+However, none of these prior works detects insecure crypto keys.
+
+In this paper, we present \sysname, a tool to identify insecure cryptographic keys in an executable, without source code or debugging symbols. 
+\sysname does not use signatures to identify crypto algorithms. 
+Instead,  it directly identifies crypto keys and analyzes them  to detect insecure keys. 
+In a nutshell, \sysname  identifies insecure crypto keys by analyzing how keys are generated, propagated, and used. \looseness=-1 
+It utilizes the runtime information to locate the code blocks that operate on the crypto keys and then pinpoint the memory buffers storing the keys. 
+Meanwhile, it also tracks the origin and propagation of keys during program execution. 
+
+We have implemented \sysname atop dynamic binary instrumentation and applied it to analyze the x86/64 binaries of 
+10 cryptographic libraries and 15 applications that contain crypto operations.
+\sysname  identifies 25 insecure crypto keys including deterministically generated keys, insecurely negotiated keys, and recoverable keys. 
+Our results show that insecure crypto keys are a common problem, as the 25 insecure keys  \sysname identifies are spread across 22 programs. 
+Only three of the 25 programs evaluated do not contain insecure keys. 
+Surprisingly, \sysname found insecure keys  in some well-established crypto libraries such as \textsf{\small Libsodium}, \textsf{\small Nettle}, \textsf{\small TomCrypt}, and \textsf{\small WolfSSL}. 
+We have made responsible disclosure to the vulnerable software vendors, and patches are under development. 
+%This also indicates that the use of cryptographic keys could be error-prone and we need tools such as \sysname to systematically identify them.  \looseness=-1
+
+In short, we make the following contributions:
+\begin{itemize}
+\item We propose a novel binary analysis approach to identify insecure crypto keys in program executables such as deterministically generated keys, insecurely negotiated keys, and recoverable keys. Our approach does not rely on signatures and can be applied to proprietary and standard algorithms. 
+
+\item We have designed and implemented \sysname, a scalable tool that implements our approach. \sysname implements various techniques to significantly optimize the performance of the binary code analysis. 
+%This is essential to achieve interference-free analysis against cryptographic operations, which are often computationally intensive and sensitive to extra analysis overhead.
+
+\item The evaluation results on real world software show that \sysname can analyze real world crypto libraries and COTS binaries to  identify insecure keys used by symmetric ciphers, asymmetric ciphers, stream ciphers, and digital signatures.
+\end{itemize}

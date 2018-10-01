@@ -1,0 +1,92 @@
+\begin{tikzpicture}[]
+\begin{axis}[
+symbolic x coords={WinRAR,7-zip,Wget,Putty-scp,OpenSSL-AES,OpenSSL-RSA,OpenSSL-ECDSA,Botan-AES,Botan-RSA,Botan-ECDSA}
+,
+xtick=data, x tick label style= {rotate=25,anchor=east},
+ybar,
+%enlarge x limits={abs=0.5cm},
+ymin = 0,
+ymax = 23,
+restrict y to domain*=0:25,
+visualization depends on=rawy\as\rawy, % Save the unclipped values
+    after end axis/.code={ % Draw line indicating break
+            \draw [line width=1mm, white, decoration={snake, amplitude=1pt}, decorate] (rel axis cs:0,1.02) -- (rel axis cs:1,1.02);
+        },
+legend entries={Code profiling, Etnropy/Randomness testing, Key tracking},
+legend pos=north west,
+%enlarge x limits={abs=0.5cm},
+%ybar,
+clip=false,
+axis lines*=left,
+yticklabel={\pgfmathprintnumber{\tick}x},
+bar width=12pt,
+try min ticks=10,
+%Next 3 lines put line at 0
+extra y ticks       = 0,
+extra y tick labels = ,
+extra y tick style  = { grid = major },
+%xscale=2
+%width=.5*\textwidth,
+height=7cm
+]
+
+%REWRITE ALL
+\addplot[fill=black, 
+nodes near coords={%
+            \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}
+      		\pgfmathparse{\rawy}\StrMid{\pgfmathresult}{1}{4}x~
+    \pgfkeys{/pgf/fpu=false}
+        }] 
+coordinates {
+(WinRAR,1.57)
+(7-zip,2.31)
+(Wget,1.53)
+(Putty-scp,1.43)
+(OpenSSL-AES,1.17)
+(OpenSSL-RSA,3.24)
+(OpenSSL-ECDSA,1.72)
+(Botan-AES,1.56)
+(Botan-RSA,3.18)
+(Botan-ECDSA,2.82)
+};
+
+%REWRITE WITH SHADOW STACK
+\addplot[fill=gray, 
+nodes near coords={%
+            \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}
+      		\pgfmathparse{\rawy}\StrMid{\pgfmathresult}{1}{4}x~
+    \pgfkeys{/pgf/fpu=false}
+        }] 
+coordinates {
+(WinRAR,5.21)
+(7-zip,12.48)
+(Wget,2.11)
+(Putty-scp,1.83)
+(OpenSSL-AES,1.25)
+(OpenSSL-RSA,9.67)
+(OpenSSL-ECDSA,4.54)
+(Botan-AES,1.44)
+(Botan-RSA,13.12)
+(Botan-ECDSA,9.16)
+};
+
+%PIN REWRITE WITH SHADOW STACK
+\addplot[fill=yellow, nodes near coords={%
+            \pgfkeys{/pgf/fpu=true,/pgf/fpu/output format=fixed}
+      		\pgfmathparse{\rawy}\StrMid{\pgfmathresult}{1}{4}x~
+    \pgfkeys{/pgf/fpu=false}
+        }]  coordinates {
+(WinRAR,3.65)
+(7-zip,10.15)
+(Wget,2.59)
+(Putty-scp,3.12)
+(OpenSSL-AES,1.24)
+(OpenSSL-RSA,11.59)
+(OpenSSL-ECDSA,3.73)
+(Botan-AES,2.99)
+(Botan-RSA,22.02)
+(Botan-ECDSA,15.28)
+};
+
+\end{axis}
+\end{tikzpicture}

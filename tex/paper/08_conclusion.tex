@@ -1,0 +1,6 @@
+We have presented \sysname, a dynamic analysis system to identify insecure keys in an input executable. \sysname first pinpoints the crypto keys by leveraging general properties of crypto operations. 
+Then, it identifies insecure keys, namely, deterministic generated keys, insecurely negotiated keys, and recoverable keys by tracking how the crypto keys are generated and propagated. 
+We have implemented \sysname and tested it with 10 cryptographic libraries and 15 applications that contain crypto operations. 
+Our evaluation results show that \sysname pinpoints the crypto keys used by symmetric ciphers, asymmetric ciphers, stream ciphers, and digital signatures.  
+More importantly, \sysname discovers insecure keys in 22 out of 25 evaluated programs, including in well-established crypto libraries such as \textsf{\small LibSodium}, \textsf{\small Nettle}, \textsf{\small TomCrypt}, and \textsf{\small WolfSSL}. 
+We have responsibly disclosed the vulnerabilities to the affected software vendors and patches are under development.

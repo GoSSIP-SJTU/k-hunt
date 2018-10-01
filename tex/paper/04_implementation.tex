@@ -1,0 +1,65 @@
+%\vspace{-0.12in}
+%\paragraph{Dynamic Binary Code Analysis} 
+We have implemented \sysname using  Intel \textsf{\small PIN}~\cite{luk2005pin}, 
+a popular dynamic binary instrumentation (DBI) framework. 
+We use dynamic analysis instead of static analysis for different reasons. 
+First, we need to measure execution statistics such as the randomness of the runtime data and the number of executions of a basic block. 
+Second, static analysis faces limitations analyzing memory buffers, e.g., due to indirect memory addressing.
+Third, the static dentification of function boundaries, 
+needed for the function-level taint propagation, is challenging, especially for C++ libraries~\cite{andriessedepth}. 
+Using DBI, \sysname can leverage the runtime information to identify function boundaries. 
+Finally, DBI is able to handle executables with some protections (e.g., code packing or VM obfuscation). \looseness=-1
+
+% \sysname contains two phases of analysis with different instrumentations, and 
+We have implemented three Pintools for \emph{code profiling}, \emph{randomness testing}, and \emph{key tracking}. 
+In Phase I, the executable is first run with the code profiling Pintool to find which candidate basic blocks should be tested for randomness. 
+Then, the program is executed again with the randomness testing Pintool to collect the runtime information needed for the randomness test.
+In Phase II, the key tracking Pintool is used to check how program inputs affect the key derivation and how crypto keys are propagated.
+
+To detect the key residue, we should rigorously have implemented a kernel module to monitor all of the process pages belonging to the target process right after the process terminates. 
+Unfortunately, PIN does not provide such kernel-level APIs. 
+Instead, we instrument the callback function \texttt{PIN\_AddFiniFunction} in our key tracking pintool to trigger the memory check. 
+This callback is invoked right after the execution of all user defined cleanup functions and before the process terminates.
+
+\paragraph{Labeling Program Inputs} \sysname needs to set the input taint tag when the program receives  local or remote input. To this end, it hooks the system APIs that deal with such inputs (e.g., \texttt{read}, \texttt{fread}, \texttt{recv}) , as well as APIs related to random number generation (e.g.,  \texttt{rand()}).
+The local tag is set if the input comes from the filesystem or a random number generation API, 
+and the remote tag if the input comes from a network socket.
+% A special case is how to recognize the pseudo random number generator (PRNG). A PRNG often combines multiple system input sources to produce pseudo random stream.
+% We found that if we directly hook every system input and check for combinations to identify a potential PRNG, the analysis will be very complex. 
+% Fortunately, we find that the implementations of PRNG in real world are often provided by the operating systems or widely used crypto libraries. 
+% Thus, we collect the features of well-known PRNGs beforehand. When our analysis encounters such a PRNG, it can be identified straightforwardly using a feature matching.
+
+\paragraph{Differential Testing}
+%Since crypto basic blocks are only a very small fraction of all basic blocks, 
+\sysname can optionally use a differential analysis step to identify candidate basic blocks in Phase I that are unrelated to crypto operations, and thus be removed from the candidate set. 
+To this end, it compares two traces, obtained by running the program executable with and without triggering the crypto operations (e.g., executing \textsf{\small 7-zip} with or without file encryption). 
+Then, it identifies candidate basic blocks that do not appear in the execution with crypto operations, as well as candidate blocks that apper in both executions with and without crypto operations. 
+In both cases, those candidate basic blocks cannot be crypto basic blocks. 
+Note that differential analysis is just an optional optimization to reduce the number of candidate basic blocks to be considered.
+
+\paragraph{On-Demand Tracing}
+Crypto operations are often CPU-intensive and a dynamic analysis with large performance overhead could significantly interfere with the normal program execution. 
+To address this, \sysname uses on-demand tracing , applying heavyweight program analysis only on necessary code blocks. 
+For instance, in the first phase, both the number of executions of candidate basic blocks and the data randomness are analyzed to determine the crypto basic blocks. 
+However, the testing of randomness requires a time-consuming analysis. 
+To reduce this overhead, \sysname first uses code profiling to count the number of candidate basic block executions and excludes irrelevant candidate basic blocks. 
+In this manner, it only needs to apply the more expensive randomness testing on the remaining candidate basic blocks. 
+In the second phase of analysis, \sysname only instruments the memory read and memory write instructions to propagate the taint tag at function level, as described in \S\ref{sec:analysis:misuse}. This significantly reduces the overhead of our taint analysis.
+
+\paragraph{Entropy Test}
+A time-consuming step in \sysname is the randomness test.
+To speed this step, we conduct a more lightweight entropy test before, so that the randomness test is only applied to those bundles with high entropy. 
+Note that a bundle with high randomness must also possess high entropy, while a bundle with high entropy may not have high randomness~\cite{wang2013steal}.
+
+%\paragraph{Optimizations with Special Crypto Implementations}
+% Although our crypto block identification technique requires no priori knowledge of a crypto algorithm, we also consider two special cases. 
+% The first case is the AES New Instructions (\textsf{\small AES NI}) introduced by Intel to accelerate the encryption. 
+% When encountering such instructions, we directly extract the \textsf{\small AES} keys based on the semantics.
+% The second case is the crypto APIs provided by crypto libraries or the operating systems. 
+% These APIs can be identified easily through checking the names. 
+% Note that we handle these specific implementations just for optimization purposes and \sysname does not have to rely on them when analyzing a target binary. \looseness=-1
+
+\paragraph{Online Analysis}
+\sysname uses an online analysis approach.
+It could also operate on execution traces to reduce the runtime overhead. 
+Nonetheless, we found an online approach is more suitable to our goal because offline analysis leads to extremely large execution traces (often >100GB), which create an I/O bottleneck slowdown.

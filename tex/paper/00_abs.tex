@@ -1,0 +1,11 @@
+\begin{abstract}
+The only secrets in modern cryptography (crypto for short) are the crypto keys. Understanding how crypto keys are used in a program and discovering insecure keys is paramount for crypto security. 
+This paper presents \sysname, a system for identifying insecure keys  in binary executables.
+\sysname leverages the properties of crypto operations for identifying the memory buffers where crypto keys are stored. And, it tracks their origin and propagation to identify insecure keys such as deterministically generated keys, insecurely negotiated keys,  and recoverable keys.
+%(e.g., data with high entropy and randomness) 
+%, it also checks any insecure use (such as deterministic key generation) of the key.
+\sysname does not use signatures to identify crypto operations,  and thus can be used to identify insecure keys in unknown crypto algorithms and proprietary crypto implementations.
+We have implemented \sysname and evaluated it with 10 cryptographic libraries and 15 applications that contain crypto operations. Our evaluation results demonstrate that \sysname locates the keys in symmetric ciphers, asymmetric ciphers, stream ciphers, and digital signatures, regardless if those algorithms are standard or proprietary. More importantly, \sysname discovers insecure keys in 22 out of 25 evaluated programs including 
+% such as weak key generation and lack of key sanitization 
+well-developed crypto libraries such as \textsf{\small Libsodium}, \textsf{\small Nettle}, \textsf{\small TomCrypt}, and \textsf{\small WolfSSL}.
+\end{abstract}

@@ -1,0 +1,155 @@
+% \subsection{\bf{Detecting DGK}}\label{sec:eval:keygen}
+% Since the key generation is not managed by the crypto libraries, we excluded the library for this test and only evaluated the rest 15 programs to check whether there is any deterministically generated key. Among these programs, we only discovered two programs that contain deterministically generated keys and they both use proprietary crypto schemes. 
+
+% \paragraph{Hardcoded Crypto Key}
+% The first case of deterministically generated key is in the picture browser software--\textsf{\small Imagine}, which uses a public key crypto to verify whether a user provided license code is valid.
+% However, the program uses an incorrect \textsf{\small DSA} signature verification to check the license code, which leads to the exposure of private key.
+
+
+\sysname identified an insecure \textsf{\small DSA} key, more specifically a deterministically generated key, in the picture browser software--\textsf{\small Imagine}. In the following, we would like to reveal why this is insecure, and how an adversary can exploit it.
+
+In particular, a \textsf{\small DSA} cipher contains five large integers:  $p$, $q$, $g$ as fixed parameters (which are public known),  $x$ as the private key (which should never be leaked), and $k$ as a random factor (which should be a random secret). It generates a public key $y$ = $g^x$ mod $p$. To use \textsf{\small DSA} for digital signature, it has to go through the following two processes.
+
+\begin{compactitem}
+\item \textbf{Signature Generation}. To sign a message $m$, the \textsf{\small DSA} cipher computes the signature as a pair ($r$, $s$) with a cryptographic hash function $H$ (e.g., SHA-256) through equation (1) and (2), and then distribute $r$ and $s$ to the receiver.
+
+\begin{equation}
+r = g^k \;\; mod \;\; p \;\; mod \;\; q  
+\end{equation}
+
+\begin{equation}
+s = k^{-1} (H(m) + x \cdot r) \;\; mod \;\; q
+\end{equation}
+
+\item \textbf{Signature Verification}.
+The receiver then verifies the signature ($r$, $s$) with the public knowledge of $p$, $q$, $g$, $y$ and $H(m)$ to verify whether the signature is valid if $v$, calculated using the following equation from (3) to (6), equals to $r$.
+
+\begin{equation}
+w = s^{-1} \; mod \; q
+\end{equation}
+
+\begin{equation}
+u_1 = H(m) \cdot w \; mod \; q
+\end{equation}
+
+\begin{equation}
+u_2 = r \cdot w \; mod \; q
+\end{equation}
+
+\begin{equation}
+v = (g^{u_1} \cdot y^{u_2} \; mod \; p ) \; mod \; q
+\end{equation}
+
+\end{compactitem}
+
+
+Interestingly, \sysname monitored the license registration process of \textsf{\small Imagine}, and identified five memory buffers as key buffers, and reported only deterministic taint tag in the used key buffers, which indicated a deterministic key is used.
+Through manual reverse-engineering of this program, we noticed the five detected key buffers are corresponding to the public known parameters $p$, $q$, $g$, $y$, and the random secret factor $k$. 
+It is very interesting that \textsf{\small Imagine} actually leaks $k$ by making $k$ hard-coded in the software.
+
+
+A further reverse engineering of the license registration process of \textsf{\small Imagine} reveals that this software only tells the user $s$ without passing $r$, when a user provides a message $m$ to generate its digital signature. However, the signature verification requires $r$ in equation (5). Therefore, the software then locally computes $r$ by using equation (1) through a hardcoded $k$. 
+Unfortunately, the exposure of $k$ is a severe mistake for \textsf{\small DSA} digital signature, and such insecure key usage has been leveraged to break the \textsf{\small ECDSA} digital signature of Sony Play Station 3~\cite{ecdsa2010ps3}. Specifically, if an attacker has obtained a legal pair of (\emph{r}, \emph{s}), with the leaked $k$, she can then compute the private key $x$ with the following equation:
+
+\begin{equation}
+x = r^{-1}(k \cdot s - H(m)) \; mod \; q
+\end{equation}
+
+\noindent As such, an attacker is able to forge any other legitimate digital signatures with the private key $x$. We have informed the developer of \textsf{\small Imagine}, and this vulnerability has been confirmed and the patch is still under development as the time of this writing.
+
+
+% \paragraph{Insufficient Input Length} The second case of deterministically generated key lies in software \textsf{\small Cryptochief}, which is a file encryption tool\footnote{Note that {Cryptochief} was first mentioned by Bruce Schneier in his blog article~\cite{krypto} in 2006. The source code of this program is released~\cite{cryptochief_cryptozoo} after the \emph{Hack.lu} 2014 CTF contest.}. This program accepts two files as inputs: one is a key file and the other is a plaintext file. It then outputs an encrypted file. The length of key and plaintext files are both arbitrary, while the length of the encrypted file is equal to that of the plaintext file.
+
+% We used \sysname to monitor the encryption process of \textsf{\small Cryptochief}. 
+% Interestingly, \sysname pinpointed that the key buffer has only 8 bytes, and this key buffer is composed from three local input sources. 
+% The IL for each input source is only one byte. 
+% Therefore, this key buffer has only three bytes IL. This indicates that the key buffer only acquires at most 24-bits of information from the local input. 
+% As such, an attacker can easily brute force all the possible keys with just $2^{24}$ possibilities to decrypt any ciphertext without the key file. 
+% Our further analysis with program source code reveals that the key derivation function of \textsf{\small Cryptochief} only uses \emph{the head byte, the tail byte and the count of all bytes} of the key  file data to generate an 8-byte key buffer.
+
+
+% \subsection{{\bf Detecting INK}}\label{sec:eval:keyagaree}
+% Key agreement requires that a shared key must be decided by all participants. 
+% As a result, when \sysname reveals that a shared key is generated with non-deterministic inputs, it further checks whether the non-deterministic inputs come from different parties. 
+% In our experiments we only consider the client-server model, which involves two participants. 
+% Of the five crypto protocols (in \textsf{\small Cryptcat, Wget, UltraSurf, IpMsg, Putty-Scp}) we examined in our suite, two protocols in \textsf{\small Ultrasurf} and \textsf{\small IpMsg} use insecurely negotiated keys. 
+% Both programs generate session keys locally and the server just accepts the key from the client. 
+
+
+% Take the \textsf{\small IpMsg} as an example. It is a popular de-centralized instant messenger~\cite{ipmsg_cryptozoo} mainly used for serverless message communication. 
+% It claims to support strong message encryption with \textsf{\small RSA-2048} and \textsf{\small AES-256}. 
+% \sysname pinpointed a $16 * 15$ bytes key buffer that is only influenced by a local random number generator, thereby leading to an insecurely negotiated key.
+% We then manually verified this discovery with the source code of \textsf{\small IpMsg}, and we found the key derivation is very simple. 
+% In particular, \textsf{\small IpMsg} initializes its communication key using the Windows \texttt{CryptGenRandom} API. 
+% Then this array is used to setup the \textsf{\small AES} struct, which is then used to encrypt the message. 
+% Obviously, the session key is determined locally and can be controlled by a malicious or tampered client.
+
+
+% \subsection{\bf{Detecting RK}}\label{sec:eval:residue}
+% We conducted an in-depth study by checking the source code or reverse engineering the program's binary to investigate the root cause of recoverable keys in those programs and libraries. In the following, we discussed these root causes in detail. 
+
+% \paragraph{RK in Tested Crypto Libraries}
+% We found the direct reason of producing recoverable key is the lack of key buffer sanitization.  
+% We classify crypto libraries into three categories according to their key buffer sanitization mechanisms and discuss involved recoverable keys. 
+
+% \begin{compactitem}
+% \item \textbf{No memory zeroing (NMZ)}. In this category, crypto libraries miss the key buffer zeroing intentionally or unintentionally. 
+% For \textsf{\small WolfSSL} and \textsf{\small Nettle}, the library developers do not provide any scrubbing functions.
+% For \textsf{\small Tomcrypt}, the scrubbing function provided by the library developers is implemented as an empty function.
+% An unintentionally case is the \textsf{\small Libsodium}. 
+% Although it provides a \texttt{sodium\_memzero} scrubbing function to clean most of its key buffer, \textsf{\small Libsodium} ignores the round key extension in its \textsf{\small AES} implementation (utilizing \textsf{\small AES NI} hardware feature): the round key buffer on the stack is not cleaned and thus becomes the leakable. 
+% We have reported this recoverable key case to the developers, and they have patched this issue.
+    
+% \item \textbf{Manual memory zeroing (MMZ)}. In this category the crypto libraries provide a scrubbing function to clean the key buffer. 
+% For instance, \textsf{\small mbedTLS} uses \texttt{mbedtls\_aes\_free} to zero the key; \textsf{\small GnuTLS} uses \texttt{zeroize\_temp\_key} in \texttt{wrap\_nettle\_cipher\_close} to zero the key; and \textsf{\small Libgcrypt} uses \texttt{gcry\_cipher\_close} to zero the key. 
+% A major problem for manual memory zeroing is that it does not clean the sensitive data automatically and it may leave the crypto key in memory if the scrubbing function is not invoked when program crashes. \looseness=-1
+
+% \smallskip
+% Moreover, if the host program does not manually invoked a scrubbing function, sensitive information will not be cleaned by those libraries. 
+% A special case is the \textsf{\small OpenSSL}: in its 1.0.x versions, it relies on \texttt{EVP\_CIPHER\_CTX\_cleanup} to zero the memory. 
+% But in its 1.1.0 version the \texttt{EVP\_CIPHER\_CTX\_reset} function is introduced to replace the original \texttt{EVP\_CIPHER\_CTX\_cleanup} function. 
+% Due to this inconsistency, legacy code may not perform the memory cleaning successfully if the library is updated because the old function for the cleanup is not available any more in the new library.
+
+% \item
+% \textbf{Automated memory zeroing}. In this category the crypto libraries (\textsf{\small Botan} and \textsf{\small Crypto++}) utilize the Resource Acquisition Is Initialization (RAII) feature of C++ language to clean the key buffer when the program ends the lifetime of the corresponding object (e.g., on function return). 
+% This automated memory zeroing mechanism ensures that the lifetime of key buffer is limited and no recoverable key exists.
+
+% \end{compactitem}
+
+% \paragraph{RK in Tested Crypto Programs}
+% We notice that there are two common root causes for recoverable key in crypto programs.
+
+% \begin{compactitem}
+% \item
+% \textbf{RK in Program Heap (RKPH)}. 
+% In our benchmarks, we found that several key buffers are directly freed without being completely cleaned after the crypto operation (e.g., the \textsf{\small AES} encryption). 
+% \textsf{\small WinRAR}, \textsf{\small Cryptcat}, \textsf{\small Cryptchief}, and \textsf{\small Ccrypt} all belong to this issue. 
+% Surprisingly, these programs are all developed for more than 10 years but they are still unaware of the key buffer sanitization issue.
+
+% \smallskip
+% Interestingly, we found that the key buffers are partially cleaned. 
+% In fact, the \texttt{free} function on Windows platform only wipes the first block (4 bytes on 32-bit platform and 8 bytes on 64-bit platform), whereas on Linux platform the \texttt{free} function wipes only the first two blocks of the memory buffer. 
+% The chance that the freed memory is preserved until the program is terminated. 
+% Therefore, any round key could be used to recover the original master key for \textsf{\small AES} due to the feature of \textsf{\small AES} key extension. 
+% As a result, this recoverable key is an important source for malicious software to probe the sensitive information.
+
+
+% % keepass, ipmsg
+% \item
+% \textbf{RK in Program Stack (RKPS)}.
+% A key buffer can be placed in the stack as temporal variables and the developers often ignore the sanitization with stack variables. 
+% This insecure key case occurs in \textsf{\small KeePass}, \textsf{\small 7-zip}, \textsf{\small IpMsg}, \textsf{\small UltraSurf}, and the widely used PDF library \textsf{\small MuPDF}. Interestingly, this issue also helps the forensic analysis of the ransomware \textsf{\small Wannacry} and \textsf{\small Sage}. 
+% In particular, since they place the encryption keys in the stack and do not clean them, it is possible for an analyst to retrieve the key from the stack memory, similarly to the heap crypto key identification case in the \textsf{\small RSA} private key extraction of \textsf{\small Wannacry}~\cite{wannakey}.% In comparison, our approach aims at the AES/ChaCha20 file encryption key).
+
+
+
+% \smallskip
+% A particular example is \textsf{\small KeePass}, a well-known open source password manager developed for over fourteen years on Windows platform and has been ported to many other platforms. The developers meticulously protect the key memory and claim that sensitive data (like the hash of the master key and entry passwords) is encrypted in process memory while \textsf{\small KeePass} is running, which means that even if the \textsf{\small KeePass} process memory is dumped to disk, any sensitive data could not be found~\cite{keepass_sec}. 
+% Unfortunately, we found \textsf{\small KeePass} erases all security-critical memory but the temporal \textsf{\small AES} round key buffer. 
+% We further checked the source code of \textsf{\small KeePass} to investigate why the round key is not cleared.
+% Interestingly, we found that the source code of \textsf{\small KeePass} contains an old \textsf{\small AES} implementation created on November 5th, 2000. 
+% In this implementation a \texttt{CRijndael} class is designed as the \textsf{\small AES} cipher. 
+% However, the destructor of this class does not consider the memory zeroing of its data member \texttt{m\_expandedKey}, which stores the round key information. 
+% As a result, if an instance of this class is allocated, it violates the memory protection policy of \textsf{\small KeePass} and leaks sensitive information as a recoverable key. \looseness=-1
+
+% \end{compactitem}

@@ -1,0 +1,98 @@
+%\vspace{-0.1in}
+\paragraph{Crypto Key Identification} There has been significant interests of identifying crypto keys. For instance, Shamir \emph{et al.} presented an efficient algebraic attack which can locate the secret \textsf{\small RSA} keys in long bit strings, and more general statistical attacks which can find arbitrary crypto keys embedded in large programs~\cite{shamir1999playing}. Halderman \emph{et al.} proposed the cold-boot attack~\cite{halderman2009lest} to retrieve the crypto keys from physical memory of the device. Hargreaves \emph{et al.} presented a linear scan method to recover encryption keys from memory~\cite{hargreaves2008recovery}. Maartmann \emph{et al.} discussed the forensic identification and extraction of crypto keys~\cite{maartmann2009persistence}. However, those approaches focus on identifying a key with its mathematic structure and do not consider utilizing dynamic program analysis to discover the used key, whereas \sysname fully utilizes dynamic program execution information such as the number of basic block execution and data entropy/randomness to identify the crypto key. Moreover, \sysname makes a step even further by using the dynamic taint analysis to detect the insecure crypto keys, which is less concerned by previous key identification studies.
+
+\paragraph{Crypto Primitive Identification} A number of efforts have focused on identifying the crypto primitives from various aspects (e.g., ~\cite{grobert2011automated, matenaar2012cis, li2012cipherxray, calvet2012aligot, ruoxu2011detection}).
+However, archiving efficient and accurate crypto primitive identification is still a non-trivial task. 
+There are still many open challenges needed to be addressed. Recent results indicate that data flow analysis~\cite{lestringant2016assisted, lestringant2015automated} is a promising technique to help identify crypto algorithms. 
+One major problem of state-of-the-art crypto primitive identification techniques is that they are sensitive to function boundary and parameter recognition. Existing techniques (e.g., CryptoHunt~\cite{xu2017cryptographic}) require the boundary of crypto function to be identified accurately to recognize crypto function. %Then static or dynamic analysis is employed to build a fine-grained description of either syntactical or semantic feature of the analyzed target. However, crypto algorithm is often not ideally implemented within an independent function but often inextricably interweaves with code of other functionalities. Thus the identification cannot be very accurate inherently. 
+% In comparison, our approach uses dynamic analysis to precisely recognize the function boundary, and there is no need to identify function parameters in \sysname.% does not have to identify the parameters of the used crypto function precisely, but focuses on identify the used key instead.
+
+
+\paragraph{Crypto Misuse Detection} 
+Public awareness of crypto flaw is growing and the increased awareness has resulted in an increase of efforts to detect crypto misuses~\cite{lazar2014does, duong2011cryptography, li2014icryptotracer}. 
+Over the past a few years, many crypto misuse cases in mobile apps and firmwares (e.g.,~\cite{egele2013empirical, costin2014large}) have been discovered. 
+For commodity software,	some crypto misuses for popular software products are also discovered~\cite{wu2005misuse, duong2011cryptography, dodis2013security, everspaugh2014not}. 
+{
+Recently, TaintCrypt~\cite{rahaman2017program}  proposed the concept of cryptographic program analysis to help developers detect the crypto misuse using LLVM-based static source code analysis.
+However, it requires the source code to conduct the analysis.
+}
+\sysname complements the existing crypto misuse detection approach by exclusively focusing on identifying the insecure crypto keys from binary executables. 
+
+
+% \paragraph{Dynamic Taint Analysis} Chow \emph{et al.} presented TaintBochs~\cite{chow2004understanding}, a simulator that can track tainted data through an entire system. They investigated the data lifetime of sensitive information (e.g., password) in several commonly-used applications. Since then, dynamic taint analysis has been widely used in many security applications, such as exploit detection~\cite{song2005ndss}, protocol reverse engineering, data structure reverse engineering, malware analysis, so on and so forth. \sysname extends dynamic taint analysis with new applications of insecure crypto key discovery.
+
+%Quantitative information flow analysis~\cite{mccamant2008quantitative, newsome2009measuring} is a technique to evaluate the security of the program. Specifically, it produces an upper bound of the amount of information leaked by a program at runtime. Our adopted key lifetime analysis is a specialized information flow analysis focusing on crypto key audit.  
+\def\semicheck{\checkmark\kern-1.1ex\raisebox{.7ex}{\rotatebox[origin=c]{125}{--}}}
+
+
+\newcommand{\tickYes}{\ding{51}}
+\newcommand{\tickNo}{\ding{55}}
+
+\begin{table}[t]
+\scriptsize
+\begin{tabular}{r llllllll} %\hline
+
+\hline
+		\textbf{Systems} & C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8 \\
+\hline
+
+	\textsf{Aligot}~\cite{calvet2012aligot}				& \tickNo	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickNo	& \tickYes	& \tickNo	\\ %Done
+	\textsf{CipherXRay}~\cite{li2012cipherxray}			& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickNo	\\ %Done
+	\textsf{Crypto-DFG}~\cite{lestringant2015automated}	& \tickNo	& \tickNo	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickNo	& \tickNo	\\ %DONE
+	\textsf{Cryptohunt}~\cite{xu2017cryptographic}		& \tickNo	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickNo	& \tickNo	\\ %DONE
+	\textsf{Dispatcher}~\cite{caballero2009dispatcher}	& \tickYes	& \tickNo	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickNo	& \tickNo	\\ %Done
+	\textsf{Kerckhoffs}~\cite{grobert2011automated}		& \tickNo	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickNo	& \tickYes	& \tickNo	\\ %Done
+	\textsf{MovieStealer}~\cite{wang2013steal}			& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickNo	& \tickYes	& \tickNo	& \tickNo	\\ %DONE
+	\textsf{ReFormat}~\cite{wang2009reformat}			& \tickYes	& \tickNo	& \tickYes	& \tickYes	& \tickYes	& \tickYes	& \tickNo	& \tickNo	\\ %Done
+
+\hline
+	\sysname									& \tickYes	& \tickYes &  \tickYes &  \tickYes & \tickYes  &  \tickYes & \tickYes & \tickYes  \\ %DONE
+ 		
+ 		\hline
+ 		\\
+ \multicolumn{3}{l}{C1: No need of crypto template} &  \multicolumn{6}{l}{C2: Obfuscation resilient}\\
+ \multicolumn{3}{l}{C3: Detecting block cipher} &  \multicolumn{6}{l}{C4: Detecting stream key cipher}\\
+ \multicolumn{3}{l}{C5: Detecting public-key cipher} &  \multicolumn{6}{l}{C6: Detecting proprietary cipher}\\
+ \multicolumn{3}{l}{C7: Identifying crypto key} &  \multicolumn{6}{l}{C8: Detecting insecure key}\\
+ \\
+\end{tabular}
+%\vspace{-0.15in}
+\caption{Comparison with the closely related works.}
+\label{tab:comparison}
+\end{table}
+
+\paragraph{Comparison} Clearly we are not the first to look into the security issues of crypto code, and there are a number of closely related works that focus on identifying the crypto primitives, as shown in~\autoref{tab:comparison}. % To evaluate the effectiveness of our approach, we also compared our \sysname with seven state-of-the-art cryptographic primitive identification systems. The comparison results are listed in Table~\ref{tab:comparison}.
+In particular, among the compared systems, \textsf{\small Kerckhoffs}, \textsf{\small Aligot}, \textsf{\small Crypto-DFG}, and \textsf{\small Cryptohunt} require the pre-defined templates to identify crypto algorithms. Therefore, they cannot detect proprietary ciphers. \textsf{\small ReFormat}, \textsf{\small Dispatcher}, and \textsf{\small MovieStealer} are not specifically designed for crypto primitive identification, and thus they cannot identify the crypto keys. Only \textsf{\small CipherXRay} and \sysname can identify both proprietary ciphers and crypto keys, but \textsf{\small CipherXRay} did not make any attempt to identify the insecure keys.
+{Moreover, a substantial difference between \sysname and \textsf{\small CipherXRay} is that \sysname focuses on the core part of a crypto algorithm and identifies keys from only several crypto blocks.
+In contrast, \textsf{\small CipherXRay} needs to recover both input and output parameters of the entire crypto algorithm.
+Thus it still suffers from the issue of how to accurately identify the boundary of parameter buffers and faces both false positives and false negatives~\cite{lestringant2017thesis}.
+}
+% Meanwhile, all of the previously designed systems did not consider the detection of insecure crypto keys. \sysname is the first system that detects insecure crypto key in binary executables.
+
+An important requirement for the crypto identification is that the analysis should not affect the normal execution of the program.
+\textsf{\small ReFormat}, \textsf{\small Dispatcher}, \textsf{\small MovieStealer}, and our \sysname utilize lightweight heuristics, which do not impose much overhead to the normal execution.
+\textsf{\small Kerckhoffs}, \textsf{\small Cryptohunt} and \textsf{\small Aligot} use an offline analysis strategy. %: they first record the execution traces and then conduct the time-consuming analysis offline.
+\textsf{\small Crypto-DFG} performs a purely static Data Flow Graph (DFG) isomorphism based detection and thus does not affect the execution either.
+Only \textsf{\small CipherXRay} adopts a heavyweight dynamic taint analysis and may affect the execution. % More specifically, \textsf{\small CipherXRay} identifies cryptographic operations through the checking of whether the information flow between input and output exhibits an avalanche effect. It also requires to analyze multiple pairs of input-output, and if the input buffer is large, the taint analysis of \textsf{\small CipherXRay} has to maintain many taint tags and thus introduces significant runtime overhead. 
+For instance, it takes CipherXRay about 40 minutes to recover a 1024-bit \textsf{\small RSA} private key, which is unacceptable for establishing normal network connection.
+
+We also compared the accuracy of each system.
+We found that if the approach requires a very precise criteria to judge the crypto function, it yields false negative.
+For instance, \textsf{\small Kerckhoffs} uses I/O comparison with known cryptographic functions to identify specific ciphers.
+However, this comparison is very sensitive to the implementation variation. %: if the input/output format of the tested crypto function does not corresponds to that of the template, it cannot be identified even though the test function is a specific crypto algorithm.
+Moreover, we also found that only using one heuristic feature to detect crypto algorithm is often not accurate.
+\textsf{\small Dispatcher}, for example, has both false positives and false negatives~\cite{matenaar2012cis,grobert2011automated}.
+Another case is \textsf{\small CipherXRay}, %It defines the concept of avalanche effect to help identify crypto routines.
+%Nonetheless, this concept is not strictly equivalent to the cryptographic avalanche effect: 
+which only checks whether all bits of the output buffer are affected by each bit of the input buffer. For the cryptographic avalanche effect, however, the criteria becomes if one bit of the input buffer is flipped, the output buffer changes significantly (e.g., half the output bits flip).
+As a result, \textsf{\small CipherXRay} does not check the intrinsic properties of the avalanche effect and may suffer from false positives. In contrast, \sysname focuses on the intrinsic properties of crypto operations, does not require any templates or signatures, and is thus crypto implementation agnostic.
+%And \sysname adopts a set of static and dynamic heuristic features to eliminate false positive: if the candidate satisfies all required features, the accuracy of the detection can be proved.
+
+Finally, since binary executables can be obfuscated, the identification of crypto primitives must also consider the code obfuscations. Among the compared systems,  \textsf{\small Dispatcher},  \textsf{\small ReFormat}, and \textsf{\small Crypto-DFG} can be easily cheated by changing the instructions with alternatives and thus are not obfuscation-resilient. 
+%For instance, \textsf{\small Dispatcher} labels a function as an encoding one if the function executes a minimum number of instructions (e.g., 20) and has a ratio larger than a pre-defined threshold (e.g., 0.55). %Obviously, code obfuscation can hinder such detection. 
+For obfuscation-resilient systems such as \textsf{\small Kerckhoffs}, \textsf{\small Aligot}, \textsf{\small CipherXRay}, and \textsf{\small Cryptohunt}, they are based on semantics of crypto. For \sysname, it utilizes the fact that even if the crypto basic blocks are obfuscated, e.g., certain arithmetic instructions are replaced by other equivalent arithmetic instructions, % such as using \textsf{\small and}, \textsf{\small or}, \textsf{\small not} to replace \textsf{\small xor},  
+the runtime features of execution number and high entropy/randomness cannot be removed. Therefore, \sysname can still work against obfuscated crypto code. \looseness=-1
+
+
+
+

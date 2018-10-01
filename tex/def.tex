@@ -1,0 +1,96 @@
+\usepackage{epsfig,endnotes}
+\usepackage{url}                  % format URLs
+\usepackage{listings}          % format code
+%\usepackage{enumitem}      % adjust spacing in enums
+%\usepackage{xcolor, multirow, array, makeidx, balance, caption, subfig}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{array}
+%\usepackage{makeidx}
+\usepackage{balance}
+\usepackage{caption}
+\usepackage{subfig}
+%\usepackage[colorlinks=true,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
+\usepackage{hyperref}
+\hypersetup{
+    %draft=true,
+    breaklinks=true,
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue,
+}
+  % hyperlinks, including DOIs and URLs in bibliography
+\usepackage{amsmath, amssymb, booktabs, pifont}
+\usepackage[all]{nowidow}
+\usepackage{paralist}
+\usepackage{tikz, pgfplots, tikzscale}
+\usepackage{graphicx}
+\graphicspath
+{
+    {figure/}
+} % i
+
+% listings的代码框的宽度默认是与页芯等宽的
+% 其上边距也过于小，可根据自己的审美观念适度调整一下
+% 我通常是将代码框的左右边距设置为2em，上边距为 1em
+% 下边距采用默认值即可，所作设定如下：
+\lstset{
+	numbers=left,
+	numberstyle=\tiny,
+	keywordstyle=\color{blue!70},
+	commentstyle=\color{red!50!green!50!blue!50},
+	frame=shadowbox,
+	rulesepcolor=\color{red!20!green!20!blue!20},
+	xleftmargin=2em,
+	xrightmargin=2em,
+	aboveskip=1em,
+	basicstyle=\scriptsize\ttfamily,
+	basewidth=0.4em
+}
+
+\usepackage{xspace}
+\newcommand{\sysname}{{\sc K-Hunt}\xspace}
+\newcommand{\todo}[1]{\textbf{\color{blue}#1}}
+%\newcommand{\ZQ}[1]{\color{red}{LIN:}\textbf{\color{blue}{#1}}
+\newcommand{\JR}[1]{\textbf{\color{red}Roman: #1}}
+\newcommand{\ZQ}[1]{\textbf{\color{blue}LIN: #1}}
+%\renewcommand{\paragraph}[1]{\vspace{0.07in}\noindent{\bf{#1}.}}
+%\usepackage{paralist}
+
+
+\newtheorem{Definition}{\textbf{Definition}}
+
+
+\renewcommand{\paragraph}[1]{\vspace{0.1in}\noindent{\bf{#1}.}}
+
+\newcommand{\review}[1]{{\leavevmode\color{blue}{#1}}}
+
+\newcommand{\Y}{\checkmark}
+\usepackage{pifont}
+\newcommand{\N}{\hspace{1pt}\ding{55}}
+
+
+\renewenvironment{itemize}{
+\begin{list}{$\bullet$}{
+\setlength{\labelwidth}{8pt}
+\setlength{\itemsep}{0pt}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\setlength{\parindent}{0pt}
+\setlength{\listparindent}{\parindent}
+\setlength{\parsep}{0pt}
+\setlength{\topsep}{3pt}}}{\end{list}}
+
+
+\renewenvironment{compactitem}{
+\begin{list}{$\bullet$}{
+\setlength{\labelwidth}{8pt}
+\setlength{\itemsep}{0pt}
+\setlength{\leftmargin}{\labelwidth}
+\addtolength{\leftmargin}{\labelsep}
+\setlength{\parindent}{0pt}
+\setlength{\listparindent}{\parindent}
+\setlength{\parsep}{0pt}
+\setlength{\topsep}{3pt}}}{\end{list}}
+

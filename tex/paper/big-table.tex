@@ -1,0 +1,95 @@
+\begin{table}[t]
+\scriptsize 
+\centering
+
+%\vspace{-0.55in}
+%\vspace{-0.4in}
+\scalebox{1}{
+\begin{tabular}{l l c c c c c ccc}
+
+\toprule
+\textbf{Target} & \textbf{Algorithm} & \textbf{B1} & \textbf{B2} & \textbf{B3} & \textbf{N} & \textbf{S} & \textbf{IL} \\
+\hline 
+\multirow{4}{*}{Botan}		& AES-256			& 53 & 13 & 7			& 1 & 240 & 32 \\
+							& RSA-2048			& 1180 & 569 & 162		& 6 & 1024 & 256 \\
+							& ECDSA	& 958 & 921 & 300		& 2 & 224 & 128 \\
+\midrule                            
+\multirow{4}{*}{Crypto++}	& AES-256			& 1281 & 26 & 5			& 1 & 240 & 32 \\
+							& RSA-2048			& 1949 & 924 & 214		& 6 & 896 & 256 \\
+							& ECDSA	& 1916 & 1425 & 305		& 8 & 288 & 64 \\
+\midrule
+\multirow{4}{*}{Libgcrypt}	& AES-256			& 126 & 25 & 3		& 1 & 240 & 32 \\
+							& RSA-2048			& 565 & 463 & 153	& 6 & 896 & 896 \\
+							& ECDSA	& 340 & 322 & 49	& 10 & 320 & 96 \\
+\midrule
+\multirow{2}{*}{LibSodium}	& AES NI-256		& 7 & 4 & 4			& 1 & 240 & 32 \\
+							& Ed25519			& 690 & 686 & 171	& 8 & 288 & 256 \\
+\midrule
+\multirow{4}{*}{LibTomcrypt}	& AES-256			& 60 & 43 & 4		& 1 & 240 & 32 \\
+							& RSA-2048			& 404 & 385 & 69	& 7 & 1152 & 1152 \\
+							& ECDSA	& 330 & 274 & 72	& 4 & 128 & 97 \\
+\midrule
+\multirow{4}{*}{Nettle} 	& AES-256				& 38 & 13 & 3		& 1 & 240 & 32 \\
+							& RSA-2048				& 411 & 87 & 61		& 6 & 1152 & 896 \\
+							& ECDSA		& 186 & 92 & 39		& 8 & 288 & 32 \\
+\midrule
+\midrule
+\multirow{4}{*}{mbedTLS}	& AES-256			& 44 & 40 & 13		& 1 & 240 & 32 \\
+							& RSA-2048			& 154 & 138 & 39	& 12 & 1664 & 256 \\
+							& ECDSA	& 255 & 245 & 47	& 9 & 384 & 64 \\
+\midrule
+\multirow{4}{*}{OpenSSL}	& AES-256			& 58 & 10 & 4		& 1 & 240 & 32 \\
+							& RSA-2048			& 210 & 175 & 41	& 10 & 1552 & 640 \\
+							& ECDSA	& 188 & 143 & 17	& 6 & 192 & 50 \\
+\midrule
+\multirow{4}{*}{WolfSSL}	& AES-256			& 50 & 36 & 4		& 1 & 240 & 32 \\
+							& RSA-2048			& 295 & 235 & 36	& 7 & 1152 & 1152 \\
+							& ECDSA	& 277 & 202 & 27	& 5 & 160 & 32 \\
+\midrule
+\midrule
+7-zip						& AES NI-256		& 2 & 2 & 2	 		& 1 & 240	& 32 \\
+\midrule
+Ccrypt 						& AES-256			& 44 & 5 & 1	 	& 1 & 240	& 32 \\
+\midrule
+Cryptcat					& Twofish			& 54 & 14 & 7		& 1 & 160	& varied \\
+\midrule
+Cryptochief 				& Proprietary $\ast$	& 23 & 12 & 1		& 1 & 8		& 3 \\
+\midrule
+Enpass 						& AES NI-256		& 8 & 3 & 3	 		& 1 & 240	& 32 \\
+\midrule
+Imagine						& DSA-1024 $\ast$	& 241 & 72 & 12	 	& 5 & 464	& 928 \\ % should be 464 == 128*3 + 40*2!!!
+\midrule
+IpMsg						& AES-256			& 168 & 12 & 4		& 1 & 240	& 32 \\
+\midrule
+Keepass						& AES-256			& 481 & 118 & 19	& 1 & 240 & 32 \\
+\midrule
+MuPDF						& AES-128			& 262 & 46 & 4	 	& 1 & 176	& 16 \\
+\midrule
+PSCP						& AES-256			& 195 & 9 & 5		& 1 & 240	&  32 \\
+\midrule
+Sage						& ChaCha20 $\ast$	& 31 & 17 & 2		& 1 & 256	& 32 \\
+\midrule
+UltraSurf					& RC4 $\ast$		& 191 & 79 & 6		& 1 & 1024 & 16 \\
+\midrule
+WannaCry					& AES-128 $\ast$	& 26 & 12 & 3	 	& 1 & 352	& 16 \\
+\midrule
+Wget						& AES-256			& 268 & 22 & 3		& 1 & 240	& 32 \\
+\midrule
+\multirow{2}{*}{WinRAR} 	& AES-128 $\ast$	& 181 & 58 & 3		& 1 & 176	& 32 \\
+ 							& AES-256 $\ast$	& 214 & 51 & 3	 	& 1 & 240	& 48 \\
+\bottomrule
+
+
+% \multicolumn{7}{p{8.4cm}}{B1: the number of basic blocks, each of which contains certain ratio (0.15) of data arithmetic instructions and memory I/O instructions}\\
+% \multicolumn{7}{p{8.4cm}}{B2: the number of basic blocks, each of which belongs to B1 and also has a linear relation with the input size}\\
+% \multicolumn{7}{p{8.4cm}}{B3: the number of basic blocks, each of which belongs to B2 and also contains data bundles with high entropy and randomness}\\
+% \multicolumn{7}{p{8.4cm}}{ S: the size of the identified key buffer}\\
+% \multicolumn{7}{p{8.4cm}}{IL: the input length of the identify key buffer}\\
+ 
+% \multicolumn{8}{p{8.5cm}}{\textbf{B1}: the number of basic blocks, each of which contains the data arithmetic instructions; \textbf{B2}: the number of basic blocks, each of which belongs to B1 and also has a linear relation with the input size; \textbf{B3}: the number of basic blocks, each of which belongs to B2 and also contains data bundles with high entropy and randomness; \textbf{N}: the number of the identified key buffer(s); \textbf{S}: total size of the identified key buffer(s); \textbf{IL}: the input length of the identify key buffer(s).}
+ 
+\end{tabular}
+}
+\caption{Results of the key pinpointing and key identification. $\ast$ denotes that the implementation of this algorithm is proprietary.% for our benchmark suite. % In the experiments we mainly chose AES-256, RSA-2048, DSA-2048, and ECDSA-secp256k1. For Libsodium, we choose AES-128 and Ed25519. The definitions of abbreviation in heading are: B1/B2/B3 denotes the number of remained code blocks after the filtering of data arithmetic instruction testing, number of execution, and entropy/randomness in turn, SoKB denotes the size of the key buffer in byte.
+}\label{tab:lib_results}
+\end{table}

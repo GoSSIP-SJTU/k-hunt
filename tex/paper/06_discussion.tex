@@ -1,0 +1,25 @@
+%We have shown that \sysname can be used to detect the insecure crypto keys in real world binary executables. 
+%However, 
+\sysname %is still not perfect and it 
+has a number of limitations. %In this section, we discuss the limitations of \sysname and outline our future work.
+%
+%
+First, while \sysname is able to pinpoint the insecure keys, it does not report any specific crypto algorithms (e.g,. \textsf{\small AES}, \textsf{\small DSA}) to which the insecure key belongs. 
+In fact, \sysname has all the building blocks to support the identification of each specific crypto algorithm used by an binary executable. 
+More specifically, since \sysname has identified the data bundles of key buffer $K$, ciphertext $C$, and plaintext $P$, we can actually perform a brute force search of the encryption algorithm $E$ by computing whether $C = E (K, P)$, where $E$ are those well-known crypto algorithms. 
+Certainly, this is only possible when software uses standard crypto algorithms (e.g., if they follow the never-implement-your-own-crypto practice~\cite{schneier1999cryptography, apvrille2005secure}). 
+We leave the identification of specific crypto algorithms in a binary executable as one of our future efforts.
+
+Second, \sysname performs the taint propagation at the function level. 
+That is, if a function uses a tainted tag, all the data defined in that function will have that tainted tag. 
+Such taint propagation may overly propagate the tainted tag, making insecure keys appear secure. 
+For instance, it might be possible that a function uses a random function, but the return value of the random function is never assigned to the crypto key. 
+While we have not encountered such a case, we plan to address this issue by implementing a fine-grained taint propagation policy, and meanwhile address the performance issues caused from this policy.
+
+Finally, \sysname will not be able to detect the crypto keys if they are stored in CPU registers. 
+A particular case is the secure in-cache execution~\cite{guan2014copker, chen2017secure} technique against the cold-boot attack~\cite{halderman2009lest}.
+In this case the crypto key is never evicted to memory and thus our approach is not able to detect it.
+
+There are also other possible extensions of \sysname. 
+For instance, crypto operations are increasingly used by mobile apps to protect their sensitive data. Thus, extending \sysname to detect insecure keys in mobile apps is a logical next step. 
+

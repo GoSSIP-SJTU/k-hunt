@@ -1,0 +1,37 @@
+% \subsection{Common Insecure Crypto Keys}
+% \label{ss:insecure}
+
+Since crypto algorithms today are quite standard, developers are mostly concerned about their implementation correctness and runtime robustness. 
+In contrast, the secure use of crypto keys has attracted less attention. 
+This is a problem because in many popular crypto libraries the responsibility of key management is left to the developers, who may not be crypto experts. 
+Therefore, we have witnessed numerous mistakes regarding insecure crypto keys. 
+We summarize below three common mistakes that lead to insecure crypto keys, and that can be detected using \sysname.  \looseness=-1
+
+% \begin{itemize}
+% \item \textbf
+\paragraph{Deterministically Generated Keys (DGK)} 
+NIST has pointed out that ``\emph{all keys shall be based directly or indirectly on the output of an approved Random Bit Generator (RBG)}''~\cite{barker2012nist-sp800-133}. However a common mistake is deterministic key generation, i.e., deriving key material from data sources without enough entropy. 
+A hard-coded key in the program is a case of deterministic key generation. 
+Another case  is when the key generation process does not provide strong randomness, which enables brute-force attacks against such keys.
+
+\paragraph{Insecurely Negotiated Keys (INK)} 
+A key agreement protocol (or key exchange protocol) defines the series of steps needed to establish a crypto key for secure communication among two or more parties. 
+Such protocols allow the participants to securely establish shared keys over an insecure medium, without the need of a previously-established shared secret. 
+An important requirement for a key agreement protocol is that two or more parties should agree on a key in a way that \emph{they all should influence the outcome of the key}. 
+This precludes any undesired third parties from influencing the key choice and is essential to implement perfect forward secrecy.
+%
+An insecurely negotiated key happens when the key agreement protocol allows a single peer to generate the shared secret without involving the other peers. In particular, many proprietary key agreement protocols directly designate one party to generate the key and then send that key to other parties. In these cases a malicious peer can surreptitiously weaken the protocol's security~\cite{keyValidated2017}.
+
+\paragraph{Recoverable Keys (RK)}
+Keeping crypto keys unnecessarily long in memory is a vulnerability due to lack of key sanitization. It creates an attack window for attackers to recover the key that can be exploited through code injection or side channel attacks~\cite{halderman2009lest,harrison2007protecting}.
+One root cause of missing crypto key sanitization is that key buffers are usually allocated on the stack or the heap managed by the operating system (OS). However, the OS seldom sanitizes such memory regions.
+For instance, if a key buffer is allocated on the heap and is freed after the crypto operation,	popular OSes such as Windows and Linux will not immediately wipe it. 
+Instead, the buffer is only labeled as ``unused'' and will be wiped only when re-allocated. 
+Furthermore, in popular crypto libraries the key sanitization responsability is left to the applications, whose developers may not be crypto experts.
+
+
+%NIST Special Publication 800-57~\cite{barker2007nist-sp800-57} requires that keys shall be destroyed at the end of its lifetime. Other best practices also suggest to clear all variables containing secret data before they go out of scope~\cite{cryptoRules2013, yang2017dead}, or using a crypto library that provides secure memory allocations for sensitive data, such as zeroing memory, locking memory and guarded heap allocations~\cite{libsodium_cryptozoo}. However, a plethora of software products still use classic crypto modules and are still at risk since the key buffer is usually not wiped before it is released. \looseness=-1
+
+
+
+%\end{itemize}
