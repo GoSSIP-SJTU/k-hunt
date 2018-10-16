@@ -1,8 +1,7 @@
 # K-Hunt: Pinpointing Insecure Cryptographic Keys from Execution Traces
 
 This is the repository for our CCS'18 paper *K-Hunt: Pinpointing Insecure Cryptographic Keys from Execution Traces*.
-The repository includes `analysis tools` (pintools and python script), `test suite` (crypto programs and libraries), `challenge-ccs18' (a crypto challenge for CCS\'18) and `tex` (tex source code, pdf, and slides) of our paper.
-
+The repository includes `analysis tools` (source code and win32 dll of pintools, and python scripts), `test suite` (crypto programs and libraries), `challenge-ccs18' (a crypto challenge for CCS 2018) and `tex` (tex source code, pdf, and slides) of our paper.
 
 ## Contributors
 

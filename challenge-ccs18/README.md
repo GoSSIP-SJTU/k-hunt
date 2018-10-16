@@ -8,15 +8,15 @@ This challenge is designd for our CCS paper: **"K-Hunt: Pinpointing Insecure Cry
 
 # Challenge
 
-To win this challenge, you are expect to provide **your own name and a corresponding license code** other than the existing license code
+To win this challenge, you are expected to provide **your own name and a corresponding license code** other than the existing license code
 
 ```
 Name/Company:  romangol
 License code:  2b2edd1ca726af1c95e392df7bbf586926c01af9
 ```
 
-provided within the `imagineViewer.7z` in this directory. If you've got the answer, please email it to `loccs @ sjtu.edu.cn` and we will reply you ASAP, and then please go to the **ant-financial desk** at the 1st floor of Beanfield center to take a gift for you!
+provided within the `imagineViewer.7z` in this directory. If you've got the answer, please email it to `loccs@sjtu.edu.cn`, we will reply ASAP. If you win this challenge, there will be a little reward waiting for you. Please go to the ant-financial desk at the 1st floor of Beanfield center to acquire your gift!
 
-Note that we have modified the public key in our provided `Imagine` program so that all license codes in our challenge are unavailable to be used for the original version.
+Note that we have modified the public key in our provided `Imagine` program so that all license codes in our challenge are unavailable in the original version.
 
 Enjoy the challenge!
