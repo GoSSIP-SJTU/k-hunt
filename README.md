@@ -10,6 +10,7 @@ The following have contributed code to `K-Hunt`:
 * [Zhiqiang Lin](http://web.cse.ohio-state.edu/~lin.3021/) @ OSU
 * Long Mai @ [G.O.S.S.I.P](https://loccs.sjtu.edu.cn/wiki)
 * Jianqiang Wang @ [G.O.S.S.I.P](https://loccs.sjtu.edu.cn/wiki)
+* Yiwei Zhang @ XDU
 
 
 ## 
